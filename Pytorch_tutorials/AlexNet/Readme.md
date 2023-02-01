@@ -13,3 +13,15 @@
 |FC 1       | 6 * 6 * 256 = 9216|        |             |            |          | 4096 |
 |FC 2       |       4096     |           |             |            |          | 4096 |
 |FC 3       |       4096     |           |             |            |          | 1000 |
+
+
+# Pytorch tips
+
+* Use `nn.Sequential` to build the model.
+
+* Pytorch在计算conv和pooling的output size时，都是向下取整
+
+* The first convolutional layer has the padding with (1, 2), i.e. one row and column of zeros at the top and left of the image and two rows and columns at the right and under of the image. But in Pytorch building parameters in nn.Conv2d()， there is only two types of `padding=`
+    1. padding = 2, means 2 padding circles around data
+    2. padding = (1, 2), means one rows of zeros above and below the image, and two columns of zeros left and right of the image.
+  Therefore facing the problem of padding (1, 2), we need to use `nn.ZeroPad2d((1, 2, 1, 2))`.
