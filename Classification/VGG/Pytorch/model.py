@@ -58,7 +58,7 @@ def make_features(cfg: list):
             conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
             layers += [conv2d, nn.ReLU(True)]
             in_channels = v
-    print(layers)
+    #print(layers)
     return nn.Sequential(*layers) # *星号的作用是作为非关键字参数传入Sequential, 根据Sequential的文档，必须通过这种格式传入，如果没有*会报错"list is not a Module subclass
 
 
@@ -73,6 +73,5 @@ cfgs = {
 def vgg(model_name="vgg16", **kwargs):
     assert model_name in cfgs, "Warning: model number {} not in cfgs dict!".format(model_name)
     cfg = cfgs[model_name]
-    model = make_features(cfg)
     model = VGG(make_features(cfg), **kwargs)
     return model
