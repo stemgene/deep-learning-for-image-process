@@ -2,12 +2,13 @@ import torch
 import torch.nn as nn
 from torchvision import transforms, datasets
 import json
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 import sys
 import torch.optim as optim
 from model import resnet34, resnet101
-from tqdm import tqdm
+import numpy as np
+#from tqdm import tqdm
 # 迁移学习'resnet34'训练好的参数: 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
 
 
@@ -26,11 +27,14 @@ def main():
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     }
 
-    data_root = os.path.abspath(os.path.join(os.getcwd(), ""))
+    data_root = os.path.abspath(os.path.join(os.getcwd(), "../../.."))
     image_path = data_root + "/data_sets/flower_data/"  # flower data set path
     train_dataset = datasets.ImageFolder(root=image_path+"train", transform=data_transform['train'])
     train_num = len(train_dataset)
     print(train_num)
+    
+    # subset for testing
+    dataset_subset = torch.utils.data.Subset(train_dataset, np.random.choice(len(train_dataset), 16, replace=False))
 
     # {'daisy':0, 'dandelion':1, 'roses':2, 'sunflower':3, 'tulips':4}
     flower_list = train_dataset.class_to_idx
@@ -41,10 +45,10 @@ def main():
         json_file.write(json_str)
         
     batch_size = 16
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+    train_loader = torch.utils.data.DataLoader(dataset_subset, batch_size=batch_size, shuffle=True, num_workers=0)
     validate_dataset = datasets.ImageFolder(root=image_path + "val", transform=data_transform["val"])
     val_num = len(validate_dataset)
-    validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    validate_loader = torch.utils.data.DataLoader(validate_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
     
     net = resnet34()
     
@@ -66,7 +70,7 @@ def main():
     
     loss_function = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=0.0001)
-    epochs = 3
+    epochs = 1
     best_acc = 0.0
     save_path = './resNet34.pth'
     train_steps = len(train_loader)
@@ -77,6 +81,7 @@ def main():
         for step, data in enumerate(train_loader, start=0):
             images, labels = data
             optimizer.zero_grad()
+            print(images.shape)
             logits = net(images.to(device))
             loss = loss_function(logits, labels.to(device))
             loss.backward()

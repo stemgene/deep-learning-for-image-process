@@ -12,7 +12,7 @@ class BasicBlock(nn.Module):
     in_channel 输入特征矩阵的深度，
     out_channel 输出特征矩阵的深度，对应主分支上卷积核的个数，
     stride=1 不改变高宽，对应实线的残差结构。stride=2，对应虚线的残差结构
-    downsample对应的是虚线的残差结构，
+    downsample对应的是虚线的残差结构，downsample的值不是boolean，而是通过sequential把kernel=1的卷积层和BN组合起来的小型网络
     """
     def __init__(self, in_channel, out_channel, stride=1, downsample=None, **kwargs):
         super(BasicBlock, self).__init__()
@@ -118,6 +118,7 @@ class ResNet(nn.Module):
         downsample = None
         # 虚线short cut，对于18、34层会直接跳过if，对于50、101、152的网络，则会进入到此下采样的阶段。
         if stride != 1 or self.in_channel != channel * block.expansion:
+            print("downsample input = ", self.in_channel, channel*block.expansion)
             downsample = nn.Sequential(
                 nn.Conv2d(self.in_channel, channel * block.expansion, kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(channel * block.expansion)
@@ -128,8 +129,10 @@ class ResNet(nn.Module):
         in_channel, 上一层特征矩阵的深度
         channel，主分支上第一个卷积核的个数
         """
+        print("first layer channel = ", self.in_channel)
         layers.append(block(self.in_channel, channel, downsample=downsample, stride=stride))
         # 通过虚线残差结构之后的卷积核个数，如深度网络第三层的4倍
+        # 否则第一层输入的总是64
         self.in_channel = channel * block.expansion
         
         # 通过for loop构建实线残差部分，不需要下采样
@@ -137,16 +140,23 @@ class ResNet(nn.Module):
             # self.in_channel: 输入特征矩阵的channel。channel：主线分支上第一个卷积核个数
             layers.append(block(self.in_channel, channel))
         
-        return nn.Sequential(*layers)
+        return nn.Sequential(*layers) # *的意思是非关键字参数
     
     def forward(self, x):
+        print('x: ', x.shape)
         x = self.conv1(x)
+        print("after conv1 = ", x.shape)
         x = self.bn1(x)
+        print("after bn = ", x.shape)
         x = self.relu(x)
+        print("after relu = ", x.shape)
         x = self.maxpool(x)
+        print("after maxpool = ", x.shape)
         
         x = self.layer1(x)
+        print("after stage 1 = ", x.shape)
         x = self.layer2(x)
+        print("after stage 2 = ", x.shape)
         x = self.layer3(x)
         x = self.layer4(x)
         
