@@ -33,9 +33,9 @@ class LayerNorm(nn.Module):
     Pytorch官方提供LayerNorm的方法，但是默认从最后一个维度开始做normalization
     在ConvNeXt网络中，针对channel维度进行norm处理，如果channel没有放到最后一维，无法使用pytorch的方法
     LayerNorm that supports two data formats: channels_last (default) or channels_first.
-    The ordering of the dimensions in the inputs. channels_last corresponds to inputs with
-    shape (batch_size, height, width, channels) while channels_first corresponds to inputs
-    with shape (batch_size, channels, height, width).
+    The ordering of the dimensions in the inputs. 
+    channels_last corresponds to inputs with shape (batch_size, height, width, channels) 
+    channels_first corresponds to inputs with shape (batch_size, channels, height, width).
     """
     def __init__(self, normalized_shape, eps=1e-6, data_format="channels_last") -> None:
         super().__init__()
@@ -77,6 +77,7 @@ class Block(nn.Module):
         self.pwconv1 = nn.Linear(dim, 4 * dim) # pointwise/1*1 convs, implemented with linear layers
         self.act = nn.GELU()
         self.pwconv2 = nn.Linear(4 * dim, dim)
+        # Layer Scale
         self.gamma = nn.Parameter(layer_scale_init_value * torch.ones((dim,)), requires_grad=True) if layer_scale_init_value > 0 else None
         self.drop_path = DropPath(drop_rate) if drop_rate > 0. else nn.Identity()
     
