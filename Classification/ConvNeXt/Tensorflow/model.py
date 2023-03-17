@@ -18,7 +18,7 @@ class Block(layers.Layer):
         drop_rate(float): Stochastic depth rate. Default: 0.0
         layer_scale_init_value(float): Init value for Layer Scale. Default: 1e-6
     """
-    def __init__(self, dim, frop_rate=0., layer_scale_init_value=1e-6, name: str = None):
+    def __init__(self, dim, drop_rate=0., layer_scale_init_value=1e-6, name: str = None):
         super().__init__(name=name)
         self.layer_scale_init_value = layer_scale_init_value
         self.dwconv = layers.DepthwiseConv2D(7,
@@ -87,11 +87,11 @@ class DownSample(layers.Layer):
         super().__init__(name=name)
         self.norm = layers.LayerNormalization(epsilon=1e-6, name="norm")
         self.conv = layers.Conv2D(dim,
-                                  kernal_size=2,
+                                  kernel_size=2,
                                   strides=2,
                                   padding="same",
-                                  kernel_initializaer=KERNEL_INITIALIZER,
-                                  bias_initializaer=BIAS_INITIALIZER,
+                                  kernel_initializer=KERNEL_INITIALIZER,
+                                  bias_initializer=BIAS_INITIALIZER,
                                   name="conv2d")
     
     def call(self, x, training=False):
@@ -118,7 +118,7 @@ class ConvNeXt(Model):
         cur = 0
         dp_rates = np.linspace(start=0, stop=drop_path_rate, num=sum(depths))
         self.stage1 = [Block(dim=dims[0],
-                             drop_rate=dp_rates[cur+i],
+                             drop_rate=dp_rates[cur + i],
                              layer_scale_init_value=layer_scale_init_value,
                              name=f"stage1_block{i}")
                        for i in range(depths[0])]

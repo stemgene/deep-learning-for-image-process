@@ -1,0 +1,6 @@
+*.pth
+*.h5
+data_set/
+save_weights/
+logs/
+__pycache__/
