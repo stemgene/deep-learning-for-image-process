@@ -21,6 +21,8 @@ ModelNet10.zip: this ZIP file contains CAD models from the 10 categories used to
 | 9        |Bed      | 
 | 10       | Monitor | 
 
+After sampling from the original image
+
 ![img](assets/output.png)
 
 # Model
