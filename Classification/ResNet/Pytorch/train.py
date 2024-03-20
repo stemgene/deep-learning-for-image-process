@@ -8,7 +8,7 @@ import sys
 import torch.optim as optim
 from model import resnet34, resnet101
 import numpy as np
-#from tqdm import tqdm
+from tqdm import tqdm
 # 迁移学习'resnet34'训练好的参数: 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
 
 
@@ -27,7 +27,8 @@ def main():
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     }
 
-    data_root = os.path.abspath(os.path.join(os.getcwd(), "../../.."))
+    ## data_root = os.path.abspath(os.path.join(os.getcwd(), "../../.."))
+    data_root = os.getcwd()
     image_path = data_root + "/data_sets/flower_data/"  # flower data set path
     train_dataset = datasets.ImageFolder(root=image_path+"train", transform=data_transform['train'])
     train_num = len(train_dataset)
